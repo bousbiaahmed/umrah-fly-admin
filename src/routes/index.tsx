@@ -14,7 +14,8 @@ export const Route = createFileRoute("/")({
 
 type LoginResp = { message?: string };
 type VerifyResp = {
-  token: string;
+  token?: string;
+  accessToken?: string;
   utilisateur?: { role?: string };
   user?: { role?: string };
   role?: string;
@@ -82,17 +83,18 @@ function LoginPage() {
         auth: false,
         body: { email, otp },
       });
-      if (!data.token) throw new ApiError("No token returned", 500, data);
+      const authToken = data.accessToken ?? data.token;
+      if (!authToken) throw new ApiError("No token returned", 500, data);
 
       const role =
-        data.utilisateur?.role ?? data.user?.role ?? data.role ?? decodeJwtRole(data.token);
+        data.utilisateur?.role ?? data.user?.role ?? data.role ?? decodeJwtRole(authToken);
 
-      if (role && role !== "ADMIN") {
+      if (role && role.toUpperCase() !== "ADMIN") {
         toast.error("Access denied — admins only.");
         return;
       }
 
-      login(data.token);
+      login(authToken);
       toast.success("Welcome back!");
       navigate({ to: "/dashboard" });
     } catch (err) {
