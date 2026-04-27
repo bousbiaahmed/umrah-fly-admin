@@ -1,7 +1,5 @@
 // Central API client with auth token auto-attached.
-// NOTE: API runs on http://localhost:5000/api — only reachable when the
-// backend is running on the same machine as the browser.
-export const API_BASE_URL = "http://localhost:5000/api";
+export const API_BASE_URL = "https://showplace-ecard-flatterer.ngrok-free.dev/api";
 
 export const TOKEN_KEY = "token";
 
@@ -38,6 +36,7 @@ export async function api<T = unknown>(path: string, options: ApiOptions = {}): 
 
   const finalHeaders: Record<string, string> = {
     "Content-Type": "application/json",
+    "ngrok-skip-browser-warning": "true",
     ...(headers as Record<string, string> | undefined),
   };
 
