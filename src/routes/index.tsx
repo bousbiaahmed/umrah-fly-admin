@@ -57,7 +57,7 @@ function LoginPage() {
       await api<LoginResp>("/utilisateurs/login-otp", {
         method: "POST",
         auth: false,
-        body: { email, mot_de_passe: password },
+        body: { email, password, mot_de_passe: password },
       });
       toast.success("OTP sent. Check your email.");
       setStep(2);
