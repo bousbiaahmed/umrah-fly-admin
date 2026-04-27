@@ -36,6 +36,7 @@ export async function api<T = unknown>(path: string, options: ApiOptions = {}): 
 
   const finalHeaders: Record<string, string> = {
     "Content-Type": "application/json",
+    "ngrok-skip-browser-warning": "true",
     ...(headers as Record<string, string> | undefined),
   };
 
