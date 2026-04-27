@@ -9,38 +9,129 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminUsersRouteImport } from './routes/_admin.users'
+import { Route as AdminRitualsRouteImport } from './routes/_admin.rituals'
+import { Route as AdminNotificationsRouteImport } from './routes/_admin.notifications'
+import { Route as AdminDuasRouteImport } from './routes/_admin.duas'
+import { Route as AdminDhikrRouteImport } from './routes/_admin.dhikr'
+import { Route as AdminDashboardRouteImport } from './routes/_admin.dashboard'
 
+const AdminRoute = AdminRouteImport.update({
+  id: '/_admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminRitualsRoute = AdminRitualsRouteImport.update({
+  id: '/rituals',
+  path: '/rituals',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminNotificationsRoute = AdminNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminDuasRoute = AdminDuasRouteImport.update({
+  id: '/duas',
+  path: '/duas',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminDhikrRoute = AdminDhikrRouteImport.update({
+  id: '/dhikr',
+  path: '/dhikr',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminDashboardRoute = AdminDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof AdminDashboardRoute
+  '/dhikr': typeof AdminDhikrRoute
+  '/duas': typeof AdminDuasRoute
+  '/notifications': typeof AdminNotificationsRoute
+  '/rituals': typeof AdminRitualsRoute
+  '/users': typeof AdminUsersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard': typeof AdminDashboardRoute
+  '/dhikr': typeof AdminDhikrRoute
+  '/duas': typeof AdminDuasRoute
+  '/notifications': typeof AdminNotificationsRoute
+  '/rituals': typeof AdminRitualsRoute
+  '/users': typeof AdminUsersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_admin': typeof AdminRouteWithChildren
+  '/_admin/dashboard': typeof AdminDashboardRoute
+  '/_admin/dhikr': typeof AdminDhikrRoute
+  '/_admin/duas': typeof AdminDuasRoute
+  '/_admin/notifications': typeof AdminNotificationsRoute
+  '/_admin/rituals': typeof AdminRitualsRoute
+  '/_admin/users': typeof AdminUsersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/dhikr'
+    | '/duas'
+    | '/notifications'
+    | '/rituals'
+    | '/users'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/dhikr'
+    | '/duas'
+    | '/notifications'
+    | '/rituals'
+    | '/users'
+  id:
+    | '__root__'
+    | '/'
+    | '/_admin'
+    | '/_admin/dashboard'
+    | '/_admin/dhikr'
+    | '/_admin/duas'
+    | '/_admin/notifications'
+    | '/_admin/rituals'
+    | '/_admin/users'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/_admin': {
+      id: '/_admin'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +139,74 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_admin/users': {
+      id: '/_admin/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_admin/rituals': {
+      id: '/_admin/rituals'
+      path: '/rituals'
+      fullPath: '/rituals'
+      preLoaderRoute: typeof AdminRitualsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_admin/notifications': {
+      id: '/_admin/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof AdminNotificationsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_admin/duas': {
+      id: '/_admin/duas'
+      path: '/duas'
+      fullPath: '/duas'
+      preLoaderRoute: typeof AdminDuasRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_admin/dhikr': {
+      id: '/_admin/dhikr'
+      path: '/dhikr'
+      fullPath: '/dhikr'
+      preLoaderRoute: typeof AdminDhikrRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_admin/dashboard': {
+      id: '/_admin/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AdminDashboardRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
+interface AdminRouteChildren {
+  AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminDhikrRoute: typeof AdminDhikrRoute
+  AdminDuasRoute: typeof AdminDuasRoute
+  AdminNotificationsRoute: typeof AdminNotificationsRoute
+  AdminRitualsRoute: typeof AdminRitualsRoute
+  AdminUsersRoute: typeof AdminUsersRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminDashboardRoute: AdminDashboardRoute,
+  AdminDhikrRoute: AdminDhikrRoute,
+  AdminDuasRoute: AdminDuasRoute,
+  AdminNotificationsRoute: AdminNotificationsRoute,
+  AdminRitualsRoute: AdminRitualsRoute,
+  AdminUsersRoute: AdminUsersRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
