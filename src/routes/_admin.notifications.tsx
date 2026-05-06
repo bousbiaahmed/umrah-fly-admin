@@ -289,10 +289,10 @@ function SendForm({ onSent }: { onSent: () => void }) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Social">Social</SelectItem>
-              <SelectItem value="Info">Info</SelectItem>
-              <SelectItem value="Alert">Alert</SelectItem>
-              <SelectItem value="Rappel">Rappel</SelectItem>
+              <SelectItem value="info">Info</SelectItem>
+              <SelectItem value="alert">Alert</SelectItem>
+              <SelectItem value="social">Social</SelectItem>
+              <SelectItem value="rappel">Rappel</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -306,22 +306,22 @@ function SendForm({ onSent }: { onSent: () => void }) {
         </div>
         <div className="flex items-center gap-3 md:col-span-2">
           <Switch
-            checked={form.is_global}
-            onCheckedChange={(v) => setForm({ ...form, is_global: v })}
+            checked={form.sendToAll}
+            onCheckedChange={(v) => setForm({ ...form, sendToAll: v })}
           />
           <Label className="!mt-0">Send to all users (global)</Label>
         </div>
-        {!form.is_global && (
+        {!form.sendToAll && (
           <div className="md:col-span-2">
             <Label>User ID</Label>
             <Input
               type="number"
-              value={form.id_utilisateur}
-              onChange={(e) => setForm({ ...form, id_utilisateur: e.target.value })}
-              className={`mt-1.5 ${errs.id_utilisateur ? "border-destructive" : ""}`}
+              value={form.userId}
+              onChange={(e) => setForm({ ...form, userId: e.target.value })}
+              className={`mt-1.5 ${errs.userId ? "border-destructive" : ""}`}
             />
-            {errs.id_utilisateur && (
-              <p className="text-xs text-destructive mt-1">{errs.id_utilisateur}</p>
+            {errs.userId && (
+              <p className="text-xs text-destructive mt-1">{errs.userId}</p>
             )}
           </div>
         )}
