@@ -58,8 +58,9 @@ function NotificationsPage() {
   const load = async () => {
     setLoading(true);
     try {
-      const data = await api<Notif[]>("/notifications/");
-      setNotifs(Array.isArray(data) ? data : []);
+      const data = await api<{ notifications: Notif[] } | Notif[]>("/notifications/");
+      const list = Array.isArray(data) ? data : data?.notifications ?? [];
+      setNotifs(list);
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "Failed to load notifications");
     } finally {
