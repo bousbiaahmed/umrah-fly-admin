@@ -153,21 +153,50 @@ function DuasPage() {
 }
 
 function AddDuaDialog({ onClose, onAdded }: { onClose: () => void; onAdded: () => void }) {
-  const [form, setForm] = useState({ titre: "", texte_arabe: "", traduction: "", audio_url: "" });
+  const [form, setForm] = useState({ titre: "", texte_arabe: "", traduction: "" });
+  const [audioFilename, setAudioFilename] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
   const [errs, setErrs] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("audio/")) {
+      toast.error("Only audio files are allowed");
+      return;
+    }
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("audio", file);
+      const res = await apiUpload<{ filename: string }>("/douaa/upload-audio", fd);
+      setAudioFilename(res.filename);
+      toast.success("Audio uploaded");
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const e2: Record<string, string> = {};
     if (!form.titre) e2.titre = "Required";
     if (!form.texte_arabe) e2.texte_arabe = "Required";
+    if (!form.traduction) e2.traduction = "Required";
+    if (!audioFilename) e2.audio = "Audio file is required";
     setErrs(e2);
     if (Object.keys(e2).length) return;
 
     setSaving(true);
     try {
-      await api("/douaa/", { method: "POST", body: form });
+      await api("/douaa/", {
+        method: "POST",
+        body: { ...form, audio_filename: audioFilename },
+      });
       toast.success("Dua created");
       onAdded();
     } catch (err) {
@@ -212,22 +241,46 @@ function AddDuaDialog({ onClose, onAdded }: { onClose: () => void; onAdded: () =
               rows={3}
               value={form.traduction}
               onChange={(e) => setForm({ ...form, traduction: e.target.value })}
-              className="mt-1.5"
+              className={`mt-1.5 ${errs.traduction ? "border-destructive" : ""}`}
             />
+            {errs.traduction && (
+              <p className="text-xs text-destructive mt-1">{errs.traduction}</p>
+            )}
           </div>
           <div>
-            <Label>Audio URL</Label>
-            <Input
-              value={form.audio_url}
-              onChange={(e) => setForm({ ...form, audio_url: e.target.value })}
-              className="mt-1.5"
+            <Label>Audio file</Label>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="audio/*"
+              onChange={handleFile}
+              className="hidden"
             />
+            <div className="mt-1.5 flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => fileRef.current?.click()}
+                disabled={uploading}
+              >
+                {uploading ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Upload className="h-4 w-4 mr-2" />
+                )}
+                {audioFilename ? "Replace audio" : "Choose audio"}
+              </Button>
+              {audioFilename && (
+                <span className="text-xs text-muted-foreground truncate">{audioFilename}</span>
+              )}
+            </div>
+            {errs.audio && <p className="text-xs text-destructive mt-1">{errs.audio}</p>}
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit" disabled={saving} className="bg-primary hover:bg-primary/90">
+            <Button type="submit" disabled={saving || uploading} className="bg-primary hover:bg-primary/90">
               {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Create
             </Button>
