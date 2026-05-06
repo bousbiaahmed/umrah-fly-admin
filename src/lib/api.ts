@@ -1,4 +1,4 @@
-// Central API client with auth token auto-attached.
+// Central API client with auth token auto-attached
 export const API_BASE_URL = "https://pipy-operculate-mi.ngrok-free.dev/api";
 
 export const TOKEN_KEY = "token";
