@@ -204,10 +204,10 @@ function SendForm({ onSent }: { onSent: () => void }) {
   const [form, setForm] = useState({
     titre: "",
     message: "",
-    categorie: "Info",
+    categorie: "info",
     type: "",
-    is_global: true,
-    id_utilisateur: "",
+    sendToAll: true,
+    userId: "",
   });
   const [errs, setErrs] = useState<Record<string, string>>({});
   const [sending, setSending] = useState(false);
@@ -215,33 +215,35 @@ function SendForm({ onSent }: { onSent: () => void }) {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const e2: Record<string, string> = {};
-    if (!form.titre) e2.titre = "Required";
-    if (!form.message) e2.message = "Required";
-    if (!form.is_global && !form.id_utilisateur) e2.id_utilisateur = "Required";
+    if (!form.titre.trim()) e2.titre = "Required";
+    if (!form.message.trim()) e2.message = "Required";
+    if (!form.sendToAll && !form.userId) e2.userId = "Required";
     setErrs(e2);
     if (Object.keys(e2).length) return;
 
     setSending(true);
     try {
-      await api("/notifications/", {
+      await api("/notifications/admin/send", {
         method: "POST",
         body: {
           titre: form.titre,
           message: form.message,
           categorie: form.categorie,
           type: form.type || undefined,
-          is_global: form.is_global,
-          id_utilisateur: form.is_global ? null : Number(form.id_utilisateur),
+          sendToAll: form.sendToAll,
+          userId: form.sendToAll ? null : Number(form.userId),
         },
       });
-      toast.success("Notification sent");
+      toast.success(
+        form.sendToAll ? "Global notification sent" : "Notification sent to user",
+      );
       setForm({
         titre: "",
         message: "",
-        categorie: "Info",
+        categorie: "info",
         type: "",
-        is_global: true,
-        id_utilisateur: "",
+        sendToAll: true,
+        userId: "",
       });
       onSent();
     } catch (err) {
