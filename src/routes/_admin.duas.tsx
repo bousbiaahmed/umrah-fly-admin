@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Eye, Plus, Loader2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Eye, Plus, Loader2, Upload } from "lucide-react";
 import { toast } from "sonner";
-import { api, ApiError } from "@/lib/api";
+import { api, apiUpload, ApiError } from "@/lib/api";
 import { Spinner } from "@/components/admin/Feedback";
 import { DataTable, type Column } from "@/components/admin/DataTable";
 import { Button } from "@/components/ui/button";
