@@ -58,8 +58,9 @@ function NotificationsPage() {
   const load = async () => {
     setLoading(true);
     try {
-      const data = await api<Notif[]>("/notifications/");
-      setNotifs(Array.isArray(data) ? data : []);
+      const data = await api<{ notifications: Notif[] } | Notif[]>("/notifications/");
+      const list = Array.isArray(data) ? data : data?.notifications ?? [];
+      setNotifs(list);
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "Failed to load notifications");
     } finally {
@@ -203,10 +204,10 @@ function SendForm({ onSent }: { onSent: () => void }) {
   const [form, setForm] = useState({
     titre: "",
     message: "",
-    categorie: "Info",
+    categorie: "info",
     type: "",
-    is_global: true,
-    id_utilisateur: "",
+    sendToAll: true,
+    userId: "",
   });
   const [errs, setErrs] = useState<Record<string, string>>({});
   const [sending, setSending] = useState(false);
@@ -214,33 +215,35 @@ function SendForm({ onSent }: { onSent: () => void }) {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const e2: Record<string, string> = {};
-    if (!form.titre) e2.titre = "Required";
-    if (!form.message) e2.message = "Required";
-    if (!form.is_global && !form.id_utilisateur) e2.id_utilisateur = "Required";
+    if (!form.titre.trim()) e2.titre = "Required";
+    if (!form.message.trim()) e2.message = "Required";
+    if (!form.sendToAll && !form.userId) e2.userId = "Required";
     setErrs(e2);
     if (Object.keys(e2).length) return;
 
     setSending(true);
     try {
-      await api("/notifications/", {
+      await api("/notifications/admin/send", {
         method: "POST",
         body: {
           titre: form.titre,
           message: form.message,
           categorie: form.categorie,
           type: form.type || undefined,
-          is_global: form.is_global,
-          id_utilisateur: form.is_global ? null : Number(form.id_utilisateur),
+          sendToAll: form.sendToAll,
+          userId: form.sendToAll ? null : Number(form.userId),
         },
       });
-      toast.success("Notification sent");
+      toast.success(
+        form.sendToAll ? "Global notification sent" : "Notification sent to user",
+      );
       setForm({
         titre: "",
         message: "",
-        categorie: "Info",
+        categorie: "info",
         type: "",
-        is_global: true,
-        id_utilisateur: "",
+        sendToAll: true,
+        userId: "",
       });
       onSent();
     } catch (err) {
@@ -286,10 +289,10 @@ function SendForm({ onSent }: { onSent: () => void }) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Social">Social</SelectItem>
-              <SelectItem value="Info">Info</SelectItem>
-              <SelectItem value="Alert">Alert</SelectItem>
-              <SelectItem value="Rappel">Rappel</SelectItem>
+              <SelectItem value="info">Info</SelectItem>
+              <SelectItem value="alert">Alert</SelectItem>
+              <SelectItem value="social">Social</SelectItem>
+              <SelectItem value="rappel">Rappel</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -303,22 +306,22 @@ function SendForm({ onSent }: { onSent: () => void }) {
         </div>
         <div className="flex items-center gap-3 md:col-span-2">
           <Switch
-            checked={form.is_global}
-            onCheckedChange={(v) => setForm({ ...form, is_global: v })}
+            checked={form.sendToAll}
+            onCheckedChange={(v) => setForm({ ...form, sendToAll: v })}
           />
           <Label className="!mt-0">Send to all users (global)</Label>
         </div>
-        {!form.is_global && (
+        {!form.sendToAll && (
           <div className="md:col-span-2">
             <Label>User ID</Label>
             <Input
               type="number"
-              value={form.id_utilisateur}
-              onChange={(e) => setForm({ ...form, id_utilisateur: e.target.value })}
-              className={`mt-1.5 ${errs.id_utilisateur ? "border-destructive" : ""}`}
+              value={form.userId}
+              onChange={(e) => setForm({ ...form, userId: e.target.value })}
+              className={`mt-1.5 ${errs.userId ? "border-destructive" : ""}`}
             />
-            {errs.id_utilisateur && (
-              <p className="text-xs text-destructive mt-1">{errs.id_utilisateur}</p>
+            {errs.userId && (
+              <p className="text-xs text-destructive mt-1">{errs.userId}</p>
             )}
           </div>
         )}
