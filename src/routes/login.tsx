@@ -14,7 +14,7 @@ export const Route = createFileRoute("/login")({
   component: LoginPage,
 });
 
-type LoginResponse = {
+type VerifyResponse = {
   accessToken?: string;
   token?: string;
   access_token?: string;
@@ -23,26 +23,49 @@ type LoginResponse = {
 
 function LoginPage() {
   const navigate = useNavigate();
+  const [step, setStep] = useState<"credentials" | "otp">("credentials");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function onSubmit(e: FormEvent) {
+  async function sendOtp(e: FormEvent) {
     e.preventDefault();
     setLoading(true);
     try {
-      const data = await api<LoginResponse>("/utilisateurs/login", {
+      await api("/utilisateurs/login-otp", {
         method: "POST",
         auth: false,
         body: { email, password },
       });
+      toast.success("OTP code sent to your email");
+      setStep("otp");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Login failed");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function verifyOtp(e: FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const data = await api<VerifyResponse>("/utilisateurs/verify-otp", {
+        method: "POST",
+        auth: false,
+        body: { email, otp },
+      });
       const token = data.accessToken || data.token || data.access_token;
       if (!token) throw new Error("No token returned");
+      if (data.user?.role && data.user.role !== "ADMIN") {
+        throw new Error("Admin access required");
+      }
       setToken(token);
       toast.success("Logged in");
       navigate({ to: "/dashboard" });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Login failed");
+      toast.error(err instanceof Error ? err.message : "Invalid OTP");
     } finally {
       setLoading(false);
     }
@@ -53,36 +76,73 @@ function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Admin Login</CardTitle>
-          <CardDescription>Sign in to access the dashboard</CardDescription>
+          <CardDescription>
+            {step === "credentials"
+              ? "Sign in to access the dashboard"
+              : `Enter the OTP code sent to ${email}`}
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={onSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoComplete="email"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                autoComplete="current-password"
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Signing in..." : "Sign in"}
-            </Button>
-          </form>
+          {step === "credentials" ? (
+            <form onSubmit={sendOtp} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  autoComplete="email"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoComplete="current-password"
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Sending OTP..." : "Continue"}
+              </Button>
+            </form>
+          ) : (
+            <form onSubmit={verifyOtp} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="otp">OTP Code</Label>
+                <Input
+                  id="otp"
+                  type="text"
+                  inputMode="numeric"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.trim())}
+                  required
+                  maxLength={6}
+                  autoComplete="one-time-code"
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Verifying..." : "Verify & Sign in"}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full"
+                onClick={() => {
+                  setStep("credentials");
+                  setOtp("");
+                }}
+                disabled={loading}
+              >
+                Back
+              </Button>
+            </form>
+          )}
         </CardContent>
       </Card>
     </div>
