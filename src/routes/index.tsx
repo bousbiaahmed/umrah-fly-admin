@@ -2,7 +2,6 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { setToken, getToken } from "@/lib/api";
 
 export const Route = createFileRoute("/")({
-  // Accept either `token` or `accessToken` query parameter (mobile clients vary)
   validateSearch: (search: Record<string, unknown>) => ({
     token:
       typeof search.token === "string"
@@ -12,13 +11,20 @@ export const Route = createFileRoute("/")({
         : undefined,
   }),
   beforeLoad: ({ search }) => {
-    const token = (search as any).token || (search as any).accessToken;
+    const token = (search as { token?: string }).token;
     if (token) {
       setToken(token);
+      if (typeof window !== "undefined") {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("token");
+        url.searchParams.delete("accessToken");
+        window.history.replaceState({}, "", url.pathname + url.search);
+      }
+      throw redirect({ to: "/dashboard" });
     }
-    if (!getToken()) {
-      // No token; still go to dashboard (no login required per current setup)
+    if (getToken()) {
+      throw redirect({ to: "/dashboard" });
     }
-    throw redirect({ to: "/dashboard" });
+    throw redirect({ to: "/login" });
   },
 });
