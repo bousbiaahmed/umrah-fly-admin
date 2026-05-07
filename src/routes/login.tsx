@@ -31,7 +31,7 @@ function LoginPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const data = await api<LoginResponse>("/auth/login", {
+      const data = await api<LoginResponse>("/utilisateurs/login", {
         method: "POST",
         auth: false,
         body: { email, password },
