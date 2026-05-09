@@ -38,10 +38,10 @@ function LoginPage() {
         auth: false,
         body: { email, password },
       });
-      toast.success("OTP code sent to your email");
+      toast.success("Code OTP envoyé à votre adresse e-mail");
       setStep("otp");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Login failed");
+      toast.error(err instanceof Error ? err.message : "Échec de la connexion");
     } finally {
       setLoading(false);
     }
@@ -57,15 +57,15 @@ function LoginPage() {
         body: { email, otp },
       });
       const token = data.accessToken || data.token || data.access_token;
-      if (!token) throw new Error("No token returned");
+      if (!token) throw new Error("Aucun jeton reçu");
       if (data.user?.role && data.user.role !== "ADMIN") {
-        throw new Error("Admin access required");
+        throw new Error("Accès administrateur requis");
       }
       setToken(token);
-      toast.success("Logged in");
+      toast.success("Connecté");
       navigate({ to: "/dashboard" });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Invalid OTP");
+      toast.error(err instanceof Error ? err.message : "Code OTP invalide");
     } finally {
       setLoading(false);
     }
@@ -75,18 +75,18 @@ function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Admin Login</CardTitle>
+          <CardTitle>Connexion Administrateur</CardTitle>
           <CardDescription>
             {step === "credentials"
-              ? "Sign in to access the dashboard"
-              : `Enter the OTP code sent to ${email}`}
+              ? "Connectez-vous pour accéder au tableau de bord"
+              : `Saisissez le code OTP envoyé à ${email}`}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {step === "credentials" ? (
             <form onSubmit={sendOtp} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">E-mail</Label>
                 <Input
                   id="email"
                   type="email"
@@ -97,7 +97,7 @@ function LoginPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Mot de passe</Label>
                 <Input
                   id="password"
                   type="password"
@@ -108,13 +108,13 @@ function LoginPage() {
                 />
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Sending OTP..." : "Continue"}
+                {loading ? "Envoi du code OTP..." : "Continuer"}
               </Button>
             </form>
           ) : (
             <form onSubmit={verifyOtp} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="otp">OTP Code</Label>
+                <Label htmlFor="otp">Code OTP</Label>
                 <Input
                   id="otp"
                   type="text"
@@ -127,7 +127,7 @@ function LoginPage() {
                 />
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Verifying..." : "Verify & Sign in"}
+                {loading ? "Vérification..." : "Vérifier et se connecter"}
               </Button>
               <Button
                 type="button"
@@ -139,7 +139,7 @@ function LoginPage() {
                 }}
                 disabled={loading}
               >
-                Back
+                Retour
               </Button>
             </form>
           )}

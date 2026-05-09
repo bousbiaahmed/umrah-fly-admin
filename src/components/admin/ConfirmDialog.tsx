@@ -22,9 +22,9 @@ type Props = {
 export function ConfirmDialog({
   open,
   onOpenChange,
-  title = "Are you sure?",
-  description = "This action cannot be undone.",
-  confirmLabel = "Delete",
+  title = "Êtes-vous sûr ?",
+  description = "Cette action est irréversible.",
+  confirmLabel = "Supprimer",
   onConfirm,
   loading,
 }: Props) {
@@ -36,7 +36,7 @@ export function ConfirmDialog({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={loading}>Annuler</AlertDialogCancel>
           <AlertDialogAction
             onClick={(e) => {
               e.preventDefault();
@@ -45,7 +45,7 @@ export function ConfirmDialog({
             disabled={loading}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            {loading ? "Working…" : confirmLabel}
+            {loading ? "En cours…" : confirmLabel}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

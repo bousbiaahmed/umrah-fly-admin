@@ -15,10 +15,10 @@ import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 const items = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/users", label: "Users", icon: Users },
-  { to: "/duas", label: "Duas", icon: BookOpenText },
-  { to: "/rituals", label: "Rituals", icon: ListChecks },
+  { to: "/dashboard", label: "Tableau de bord", icon: LayoutDashboard },
+  { to: "/users", label: "Utilisateurs", icon: Users },
+  { to: "/duas", label: "Douaa", icon: BookOpenText },
+  { to: "/rituals", label: "Rituels", icon: ListChecks },
   { to: "/dhikr", label: "Dhikr", icon: Sparkles },
   { to: "/notifications", label: "Notifications", icon: Bell },
 ] as const;
@@ -58,13 +58,13 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             </div>
             <div className="leading-tight">
               <div className="text-sm font-semibold">Umrah Fly</div>
-              <div className="text-[11px] text-sidebar-foreground/60">Admin Panel</div>
+              <div className="text-[11px] text-sidebar-foreground/60">Espace Admin</div>
             </div>
           </div>
           <button
             className="md:hidden text-sidebar-foreground/80 hover:text-sidebar-foreground"
             onClick={() => setOpen(false)}
-            aria-label="Close menu"
+            aria-label="Fermer le menu"
           >
             <X className="h-5 w-5" />
           </button>
@@ -97,7 +97,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             className="mt-4 flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
           >
             <LogOut className="h-4 w-4" />
-            Logout
+            Déconnexion
           </button>
         </nav>
       </aside>
@@ -108,7 +108,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           <button
             className="md:hidden text-foreground"
             onClick={() => setOpen(true)}
-            aria-label="Open menu"
+            aria-label="Ouvrir le menu"
           >
             <Menu className="h-5 w-5" />
           </button>
