@@ -65,7 +65,7 @@ function UsersPage() {
       const data = await api<User[]>("/utilisateurs/");
       setUsers(Array.isArray(data) ? data : []);
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Failed to load users");
+      toast.error(err instanceof ApiError ? err.message : "Échec du chargement des utilisateurs");
     } finally {
       setLoading(false);
     }
@@ -88,11 +88,11 @@ function UsersPage() {
     setBusy(true);
     try {
       await api(`/utilisateurs/${deleting.id_utilisateur}`, { method: "DELETE" });
-      toast.success("User deleted");
+      toast.success("Utilisateur supprimé");
       setUsers((prev) => prev.filter((u) => u.id_utilisateur !== deleting.id_utilisateur));
       setDeleting(null);
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Delete failed");
+      toast.error(err instanceof ApiError ? err.message : "Échec de la suppression");
     } finally {
       setBusy(false);
     }
@@ -120,15 +120,15 @@ function UsersPage() {
     },
     {
       key: "name",
-      header: "Full name",
+      header: "Nom complet",
       sortable: true,
       accessor: (u) => `${u.nom} ${u.prenom}`,
     },
-    { key: "email", header: "Email", sortable: true, accessor: (u) => u.email },
-    { key: "telephone", header: "Phone", accessor: (u) => u.telephone ?? "—" },
+    { key: "email", header: "E-mail", sortable: true, accessor: (u) => u.email },
+    { key: "telephone", header: "Téléphone", accessor: (u) => u.telephone ?? "—" },
     {
       key: "role",
-      header: "Role",
+      header: "Rôle",
       sortable: true,
       accessor: (u) => u.role,
       render: (u) => (
@@ -142,7 +142,7 @@ function UsersPage() {
     },
     {
       key: "date",
-      header: "Joined",
+      header: "Inscription",
       sortable: true,
       accessor: (u) => u.date_inscription ?? "",
       render: (u) =>
@@ -153,17 +153,17 @@ function UsersPage() {
       header: "Actions",
       render: (u) => (
         <div className="flex gap-1">
-          <Button size="icon" variant="ghost" onClick={() => setViewing(u)} title="View">
+          <Button size="icon" variant="ghost" onClick={() => setViewing(u)} title="Voir">
             <Eye className="h-4 w-4" />
           </Button>
-          <Button size="icon" variant="ghost" onClick={() => setEditing(u)} title="Edit">
+          <Button size="icon" variant="ghost" onClick={() => setEditing(u)} title="Modifier">
             <Pencil className="h-4 w-4" />
           </Button>
           <Button
             size="icon"
             variant="ghost"
             onClick={() => setDeleting(u)}
-            title="Delete"
+            title="Supprimer"
             className="text-destructive hover:text-destructive"
           >
             <Trash2 className="h-4 w-4" />
@@ -179,13 +179,13 @@ function UsersPage() {
         <div className="relative w-full max-w-sm">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search by name or email…"
+            placeholder="Rechercher par nom ou e-mail…"
             className="pl-9"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <div className="text-sm text-muted-foreground">{filtered.length} users</div>
+        <div className="text-sm text-muted-foreground">{filtered.length} utilisateurs</div>
       </div>
 
       {loading ? (
@@ -195,7 +195,7 @@ function UsersPage() {
           rows={filtered}
           columns={columns}
           rowKey={(u) => u.id_utilisateur}
-          emptyMessage="No users found."
+          emptyMessage="Aucun utilisateur trouvé."
         />
       )}
 
@@ -203,21 +203,21 @@ function UsersPage() {
       <Sheet open={!!viewing} onOpenChange={(o) => !o && setViewing(null)}>
         <SheetContent>
           <SheetHeader>
-            <SheetTitle>User details</SheetTitle>
-            <SheetDescription>Full profile information</SheetDescription>
+            <SheetTitle>Détails de l'utilisateur</SheetTitle>
+            <SheetDescription>Informations complètes du profil</SheetDescription>
           </SheetHeader>
           {viewing && (
             <div className="mt-6 space-y-3 px-4 text-sm">
               <Field label="ID" value={String(viewing.id_utilisateur)} />
-              <Field label="First name" value={viewing.prenom} />
-              <Field label="Last name" value={viewing.nom} />
-              <Field label="Email" value={viewing.email} />
-              <Field label="Phone" value={viewing.telephone ?? "—"} />
-              <Field label="Language" value={viewing.langue ?? "—"} />
-              <Field label="Account type" value={viewing.type_compte ?? "—"} />
-              <Field label="Role" value={viewing.role} />
+              <Field label="Prénom" value={viewing.prenom} />
+              <Field label="Nom" value={viewing.nom} />
+              <Field label="E-mail" value={viewing.email} />
+              <Field label="Téléphone" value={viewing.telephone ?? "—"} />
+              <Field label="Langue" value={viewing.langue ?? "—"} />
+              <Field label="Type de compte" value={viewing.type_compte ?? "—"} />
+              <Field label="Rôle" value={viewing.role} />
               <Field
-                label="Joined"
+                label="Inscription"
                 value={
                   viewing.date_inscription
                     ? new Date(viewing.date_inscription).toLocaleString()
@@ -241,8 +241,8 @@ function UsersPage() {
       <ConfirmDialog
         open={!!deleting}
         onOpenChange={(o) => !o && setDeleting(null)}
-        title="Delete user?"
-        description={`This will permanently delete ${deleting?.prenom ?? ""} ${deleting?.nom ?? ""}.`}
+        title="Supprimer l'utilisateur ?"
+        description={`Cela supprimera définitivement ${deleting?.prenom ?? ""} ${deleting?.nom ?? ""}.`}
         onConfirm={handleDelete}
         loading={busy}
       />
@@ -283,19 +283,19 @@ function EditUserDialog({
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const e2: Record<string, string> = {};
-    if (!form.nom) e2.nom = "Required";
-    if (!form.prenom) e2.prenom = "Required";
-    if (!form.email) e2.email = "Required";
+    if (!form.nom) e2.nom = "Requis";
+    if (!form.prenom) e2.prenom = "Requis";
+    if (!form.email) e2.email = "Requis";
     setErrs(e2);
     if (Object.keys(e2).length) return;
 
     setSaving(true);
     try {
       await api(`/utilisateurs/${user.id_utilisateur}`, { method: "PUT", body: form });
-      toast.success("User updated");
+      toast.success("Utilisateur mis à jour");
       onSaved({ ...user, ...form });
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Update failed");
+      toast.error(err instanceof ApiError ? err.message : "Échec de la mise à jour");
     } finally {
       setSaving(false);
     }
@@ -305,45 +305,45 @@ function EditUserDialog({
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Edit user</DialogTitle>
+          <DialogTitle>Modifier l'utilisateur</DialogTitle>
         </DialogHeader>
         <form onSubmit={submit} className="grid gap-3 sm:grid-cols-2">
           <FormField
-            label="First name"
+            label="Prénom"
             value={form.prenom}
             onChange={(v) => setForm({ ...form, prenom: v })}
             error={errs.prenom}
           />
           <FormField
-            label="Last name"
+            label="Nom"
             value={form.nom}
             onChange={(v) => setForm({ ...form, nom: v })}
             error={errs.nom}
           />
           <FormField
-            label="Email"
+            label="E-mail"
             value={form.email}
             onChange={(v) => setForm({ ...form, email: v })}
             error={errs.email}
             className="sm:col-span-2"
           />
           <FormField
-            label="Phone"
+            label="Téléphone"
             value={form.telephone}
             onChange={(v) => setForm({ ...form, telephone: v })}
           />
           <FormField
-            label="Language"
+            label="Langue"
             value={form.langue}
             onChange={(v) => setForm({ ...form, langue: v })}
           />
           <FormField
-            label="Account type"
+            label="Type de compte"
             value={form.type_compte}
             onChange={(v) => setForm({ ...form, type_compte: v })}
           />
           <div>
-            <Label>Role</Label>
+            <Label>Rôle</Label>
             <Select value={form.role} onValueChange={(v) => setForm({ ...form, role: v })}>
               <SelectTrigger className="mt-1.5">
                 <SelectValue />
@@ -356,11 +356,11 @@ function EditUserDialog({
           </div>
           <DialogFooter className="sm:col-span-2">
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              Annuler
             </Button>
             <Button type="submit" disabled={saving} className="bg-primary hover:bg-primary/90">
               {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Save changes
+              Enregistrer
             </Button>
           </DialogFooter>
         </form>

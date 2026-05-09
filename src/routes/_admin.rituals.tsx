@@ -62,7 +62,7 @@ function RitualsPage() {
         setPlannings(list);
         if (list.length) setSelected(list[0]);
       } catch (err) {
-        toast.error(err instanceof ApiError ? err.message : "Failed to load plannings");
+        toast.error(err instanceof ApiError ? err.message : "Échec du chargement des plannings");
       } finally {
         setLoadingP(false);
       }
@@ -75,7 +75,7 @@ function RitualsPage() {
       const data = await api<Ritual[]>(`/rituels/${id}`);
       setRituals(Array.isArray(data) ? data : []);
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Failed to load rituals");
+      toast.error(err instanceof ApiError ? err.message : "Échec du chargement des rituels");
       setRituals([]);
     } finally {
       setLoadingR(false);
@@ -87,10 +87,10 @@ function RitualsPage() {
   }, [selected]);
 
   const columns: Column<Ritual>[] = [
-    { key: "ordre", header: "Order", sortable: true, accessor: (r) => r.ordre },
-    { key: "nom", header: "Name", sortable: true, accessor: (r) => r.nom },
+    { key: "ordre", header: "Ordre", sortable: true, accessor: (r) => r.ordre },
+    { key: "nom", header: "Nom", sortable: true, accessor: (r) => r.nom },
     { key: "desc", header: "Description", render: (r) => trunc(r.description, 60) },
-    { key: "dua", header: "Dua ID", accessor: (r) => r.id_douaa ?? "—" },
+    { key: "dua", header: "ID Douaa", accessor: (r) => r.id_douaa ?? "—" },
     {
       key: "actions",
       header: "Actions",
@@ -110,7 +110,7 @@ function RitualsPage() {
         {loadingP ? (
           <Spinner />
         ) : plannings.length === 0 ? (
-          <EmptyState message="No plannings." />
+          <EmptyState message="Aucun planning." />
         ) : (
           <ul className="space-y-1 mt-2">
             {plannings.map((p) => (
@@ -155,21 +155,21 @@ function RitualsPage() {
           <div>
             <h3 className="text-base font-semibold">
               {selected
-                ? `Rituals — ${selected.type_evenement || `#${selected.id_planning}`}`
-                : "Select a planning"}
+                ? `Rituels — ${selected.type_evenement || `#${selected.id_planning}`}`
+                : "Sélectionnez un planning"}
             </h3>
-            <p className="text-sm text-muted-foreground">{rituals.length} rituals</p>
+            <p className="text-sm text-muted-foreground">{rituals.length} rituels</p>
           </div>
           {selected && (
             <Button onClick={() => setAdding(true)} className="bg-primary hover:bg-primary/90">
               <Plus className="h-4 w-4 mr-2" />
-              Add Ritual
+              Ajouter un Rituel
             </Button>
           )}
         </div>
 
         {!selected ? (
-          <EmptyState message="Pick a planning on the left to see its rituals." />
+          <EmptyState message="Choisissez un planning à gauche pour voir ses rituels." />
         ) : loadingR ? (
           <Spinner />
         ) : (
@@ -177,7 +177,7 @@ function RitualsPage() {
             rows={rituals}
             columns={columns}
             rowKey={(r) => r.id_rituel}
-            emptyMessage="No rituals for this planning."
+            emptyMessage="Aucun rituel pour ce planning."
           />
         )}
       </div>
@@ -186,16 +186,16 @@ function RitualsPage() {
         <SheetContent className="overflow-y-auto">
           <SheetHeader>
             <SheetTitle>{viewing?.nom}</SheetTitle>
-            <SheetDescription>Ritual #{viewing?.id_rituel}</SheetDescription>
+            <SheetDescription>Rituel #{viewing?.id_rituel}</SheetDescription>
           </SheetHeader>
           {viewing && (
             <div className="mt-6 px-4 space-y-3 text-sm">
-              <Field label="Order" value={String(viewing.ordre)} />
+              <Field label="Ordre" value={String(viewing.ordre)} />
               <Field label="Description" value={viewing.description ?? "—"} />
-              <Field label="Dua ID" value={String(viewing.id_douaa ?? "—")} />
+              <Field label="ID Douaa" value={String(viewing.id_douaa ?? "—")} />
               {viewing.etapes != null && (
                 <div>
-                  <div className="text-xs text-muted-foreground">Steps</div>
+                  <div className="text-xs text-muted-foreground">Étapes</div>
                   <pre className="bg-muted rounded p-2 text-xs overflow-x-auto">
                     {JSON.stringify(viewing.etapes, null, 2)}
                   </pre>
@@ -250,7 +250,7 @@ function AddRitualDialog({
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const e2: Record<string, string> = {};
-    if (!form.nom) e2.nom = "Required";
+    if (!form.nom) e2.nom = "Requis";
     setErrs(e2);
     if (Object.keys(e2).length) return;
 
@@ -260,10 +260,10 @@ function AddRitualDialog({
         method: "POST",
         body: { ...form, id_planning: planningId },
       });
-      toast.success("Ritual created");
+      toast.success("Rituel créé");
       onAdded();
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Create failed");
+      toast.error(err instanceof ApiError ? err.message : "Échec de la création");
     } finally {
       setSaving(false);
     }
@@ -273,11 +273,11 @@ function AddRitualDialog({
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add ritual</DialogTitle>
+          <DialogTitle>Ajouter un rituel</DialogTitle>
         </DialogHeader>
         <form onSubmit={submit} className="space-y-3">
           <div>
-            <Label>Name</Label>
+            <Label>Nom</Label>
             <Input
               value={form.nom}
               onChange={(e) => setForm({ ...form, nom: e.target.value })}
@@ -287,7 +287,7 @@ function AddRitualDialog({
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Order</Label>
+              <Label>Ordre</Label>
               <Input
                 type="number"
                 value={form.ordre}
@@ -296,7 +296,7 @@ function AddRitualDialog({
               />
             </div>
             <div>
-              <Label>Dua ID</Label>
+              <Label>ID Douaa</Label>
               <Input
                 type="number"
                 value={form.id_douaa}
@@ -314,14 +314,14 @@ function AddRitualDialog({
               className="mt-1.5"
             />
           </div>
-          <div className="text-xs text-muted-foreground">Planning ID: {planningId}</div>
+          <div className="text-xs text-muted-foreground">ID Planning : {planningId}</div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              Annuler
             </Button>
             <Button type="submit" disabled={saving} className="bg-primary hover:bg-primary/90">
               {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Create
+              Créer
             </Button>
           </DialogFooter>
         </form>

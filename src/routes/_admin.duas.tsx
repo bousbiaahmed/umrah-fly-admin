@@ -53,7 +53,7 @@ function DuasPage() {
       const data = await api<Dua[]>("/douaa/all");
       setDuas(Array.isArray(data) ? data : []);
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Failed to load duas");
+      toast.error(err instanceof ApiError ? err.message : "Échec du chargement des douaa");
     } finally {
       setLoading(false);
     }
@@ -65,13 +65,13 @@ function DuasPage() {
 
   const columns: Column<Dua>[] = [
     { key: "id", header: "ID", sortable: true, accessor: (d) => d.id_douaa },
-    { key: "titre", header: "Title", sortable: true, accessor: (d) => d.titre },
+    { key: "titre", header: "Titre", sortable: true, accessor: (d) => d.titre },
     {
       key: "arabe",
-      header: "Arabic",
+      header: "Arabe",
       render: (d) => <span dir="rtl">{trunc(d.texte_arabe, 30)}</span>,
     },
-    { key: "trad", header: "Translation", render: (d) => trunc(d.traduction, 50) },
+    { key: "trad", header: "Traduction", render: (d) => trunc(d.traduction, 50) },
     {
       key: "audio",
       header: "Audio",
@@ -91,10 +91,10 @@ function DuasPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <p className="text-sm text-muted-foreground">{duas.length} duas</p>
+        <p className="text-sm text-muted-foreground">{duas.length} douaa</p>
         <Button onClick={() => setAdding(true)} className="bg-primary hover:bg-primary/90">
           <Plus className="h-4 w-4 mr-2" />
-          Add Dua
+          Ajouter une Douaa
         </Button>
       </div>
 
@@ -105,7 +105,7 @@ function DuasPage() {
           rows={duas}
           columns={columns}
           rowKey={(d) => d.id_douaa}
-          emptyMessage="No duas yet."
+          emptyMessage="Aucune douaa pour le moment."
         />
       )}
 
@@ -113,18 +113,18 @@ function DuasPage() {
         <SheetContent className="overflow-y-auto">
           <SheetHeader>
             <SheetTitle>{viewing?.titre}</SheetTitle>
-            <SheetDescription>Dua #{viewing?.id_douaa}</SheetDescription>
+            <SheetDescription>Douaa #{viewing?.id_douaa}</SheetDescription>
           </SheetHeader>
           {viewing && (
             <div className="mt-6 px-4 space-y-4 text-sm">
               <div>
-                <div className="text-xs text-muted-foreground mb-1">Arabic</div>
+                <div className="text-xs text-muted-foreground mb-1">Arabe</div>
                 <div className="text-lg leading-loose" dir="rtl">
                   {viewing.texte_arabe || "—"}
                 </div>
               </div>
               <div>
-                <div className="text-xs text-muted-foreground mb-1">Translation</div>
+                <div className="text-xs text-muted-foreground mb-1">Traduction</div>
                 <div>{viewing.traduction || "—"}</div>
               </div>
               {viewing.audio_url && (
@@ -164,7 +164,7 @@ function AddDuaDialog({ onClose, onAdded }: { onClose: () => void; onAdded: () =
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("audio/")) {
-      toast.error("Only audio files are allowed");
+      toast.error("Seuls les fichiers audio sont autorisés");
       return;
     }
     setUploading(true);
@@ -173,9 +173,9 @@ function AddDuaDialog({ onClose, onAdded }: { onClose: () => void; onAdded: () =
       fd.append("audio", file);
       const res = await apiUpload<{ filename: string }>("/douaa/upload-audio", fd);
       setAudioFilename(res.filename);
-      toast.success("Audio uploaded");
+      toast.success("Audio téléversé");
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Upload failed");
+      toast.error(err instanceof ApiError ? err.message : "Échec du téléversement");
     } finally {
       setUploading(false);
     }
@@ -184,10 +184,10 @@ function AddDuaDialog({ onClose, onAdded }: { onClose: () => void; onAdded: () =
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const e2: Record<string, string> = {};
-    if (!form.titre) e2.titre = "Required";
-    if (!form.texte_arabe) e2.texte_arabe = "Required";
-    if (!form.traduction) e2.traduction = "Required";
-    if (!audioFilename) e2.audio = "Audio file is required";
+    if (!form.titre) e2.titre = "Requis";
+    if (!form.texte_arabe) e2.texte_arabe = "Requis";
+    if (!form.traduction) e2.traduction = "Requis";
+    if (!audioFilename) e2.audio = "Le fichier audio est requis";
     setErrs(e2);
     if (Object.keys(e2).length) return;
 
@@ -197,10 +197,10 @@ function AddDuaDialog({ onClose, onAdded }: { onClose: () => void; onAdded: () =
         method: "POST",
         body: { ...form, audio_filename: audioFilename },
       });
-      toast.success("Dua created");
+      toast.success("Douaa créée");
       onAdded();
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Create failed");
+      toast.error(err instanceof ApiError ? err.message : "Échec de la création");
     } finally {
       setSaving(false);
     }
@@ -210,11 +210,11 @@ function AddDuaDialog({ onClose, onAdded }: { onClose: () => void; onAdded: () =
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Add Dua</DialogTitle>
+          <DialogTitle>Ajouter une Douaa</DialogTitle>
         </DialogHeader>
         <form onSubmit={submit} className="space-y-3">
           <div>
-            <Label>Title</Label>
+            <Label>Titre</Label>
             <Input
               value={form.titre}
               onChange={(e) => setForm({ ...form, titre: e.target.value })}
@@ -223,7 +223,7 @@ function AddDuaDialog({ onClose, onAdded }: { onClose: () => void; onAdded: () =
             {errs.titre && <p className="text-xs text-destructive mt-1">{errs.titre}</p>}
           </div>
           <div>
-            <Label>Arabic text</Label>
+            <Label>Texte arabe</Label>
             <Textarea
               dir="rtl"
               rows={3}
@@ -236,7 +236,7 @@ function AddDuaDialog({ onClose, onAdded }: { onClose: () => void; onAdded: () =
             )}
           </div>
           <div>
-            <Label>Translation</Label>
+            <Label>Traduction</Label>
             <Textarea
               rows={3}
               value={form.traduction}
@@ -248,7 +248,7 @@ function AddDuaDialog({ onClose, onAdded }: { onClose: () => void; onAdded: () =
             )}
           </div>
           <div>
-            <Label>Audio file</Label>
+            <Label>Fichier audio</Label>
             <input
               ref={fileRef}
               type="file"
@@ -268,7 +268,7 @@ function AddDuaDialog({ onClose, onAdded }: { onClose: () => void; onAdded: () =
                 ) : (
                   <Upload className="h-4 w-4 mr-2" />
                 )}
-                {audioFilename ? "Replace audio" : "Choose audio"}
+                {audioFilename ? "Remplacer l'audio" : "Choisir un audio"}
               </Button>
               {audioFilename && (
                 <span className="text-xs text-muted-foreground truncate">{audioFilename}</span>
@@ -278,11 +278,11 @@ function AddDuaDialog({ onClose, onAdded }: { onClose: () => void; onAdded: () =
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              Annuler
             </Button>
             <Button type="submit" disabled={saving || uploading} className="bg-primary hover:bg-primary/90">
               {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Create
+              Créer
             </Button>
           </DialogFooter>
         </form>
