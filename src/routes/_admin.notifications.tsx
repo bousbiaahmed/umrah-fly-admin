@@ -62,7 +62,7 @@ function NotificationsPage() {
       const list = Array.isArray(data) ? data : data?.notifications ?? [];
       setNotifs(list);
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Failed to load notifications");
+      toast.error(err instanceof ApiError ? err.message : "Échec du chargement des notifications");
     } finally {
       setLoading(false);
     }
@@ -77,38 +77,38 @@ function NotificationsPage() {
     setBusy(true);
     try {
       await api(`/notifications/${deleting.id_notification}`, { method: "DELETE" });
-      toast.success("Notification deleted");
+      toast.success("Notification supprimée");
       setNotifs((p) => p.filter((n) => n.id_notification !== deleting.id_notification));
       setDeleting(null);
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Delete failed");
+      toast.error(err instanceof ApiError ? err.message : "Échec de la suppression");
     } finally {
       setBusy(false);
     }
   };
 
   const columns: Column<Notif>[] = [
-    { key: "titre", header: "Title", sortable: true, accessor: (n) => n.titre },
+    { key: "titre", header: "Titre", sortable: true, accessor: (n) => n.titre },
     { key: "msg", header: "Message", render: (n) => trunc(n.message, 50) },
-    { key: "cat", header: "Category", sortable: true, accessor: (n) => n.categorie ?? "—" },
+    { key: "cat", header: "Catégorie", sortable: true, accessor: (n) => n.categorie ?? "—" },
     { key: "type", header: "Type", accessor: (n) => n.type ?? "—" },
     {
       key: "global",
-      header: "Global",
+      header: "Globale",
       render: (n) => (
         <Badge
           variant={n.is_global ? "default" : "secondary"}
           className={n.is_global ? "bg-gold text-gold-foreground" : ""}
         >
-          {n.is_global ? "Yes" : "No"}
+          {n.is_global ? "Oui" : "Non"}
         </Badge>
       ),
     },
     {
       key: "lue",
-      header: "Read",
+      header: "Statut",
       render: (n) => (
-        <Badge variant={n.lue ? "secondary" : "default"}>{n.lue ? "Read" : "Unread"}</Badge>
+        <Badge variant={n.lue ? "secondary" : "default"}>{n.lue ? "Lue" : "Non lue"}</Badge>
       ),
     },
     {
@@ -144,7 +144,7 @@ function NotificationsPage() {
       <SendForm onSent={load} />
 
       <div>
-        <h3 className="text-base font-semibold mb-3">All notifications</h3>
+        <h3 className="text-base font-semibold mb-3">Toutes les notifications</h3>
         {loading ? (
           <Spinner />
         ) : (
@@ -152,7 +152,7 @@ function NotificationsPage() {
             rows={notifs}
             columns={columns}
             rowKey={(n) => n.id_notification}
-            emptyMessage="No notifications yet."
+            emptyMessage="Aucune notification pour le moment."
           />
         )}
       </div>
@@ -166,13 +166,13 @@ function NotificationsPage() {
           {viewing && (
             <div className="mt-6 px-4 space-y-3 text-sm">
               <Field label="Message" value={viewing.message} />
-              <Field label="Category" value={viewing.categorie ?? "—"} />
+              <Field label="Catégorie" value={viewing.categorie ?? "—"} />
               <Field label="Type" value={viewing.type ?? "—"} />
-              <Field label="Global" value={viewing.is_global ? "Yes" : "No"} />
-              <Field label="User ID" value={String(viewing.id_utilisateur ?? "—")} />
-              <Field label="Read" value={viewing.lue ? "Yes" : "No"} />
+              <Field label="Globale" value={viewing.is_global ? "Oui" : "Non"} />
+              <Field label="ID Utilisateur" value={String(viewing.id_utilisateur ?? "—")} />
+              <Field label="Lue" value={viewing.lue ? "Oui" : "Non"} />
               <Field
-                label="Sent at"
+                label="Envoyée le"
                 value={viewing.date_envoi ? new Date(viewing.date_envoi).toLocaleString() : "—"}
               />
             </div>
@@ -183,7 +183,7 @@ function NotificationsPage() {
       <ConfirmDialog
         open={!!deleting}
         onOpenChange={(o) => !o && setDeleting(null)}
-        title="Delete notification?"
+        title="Supprimer la notification ?"
         onConfirm={handleDelete}
         loading={busy}
       />
@@ -215,9 +215,9 @@ function SendForm({ onSent }: { onSent: () => void }) {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const e2: Record<string, string> = {};
-    if (!form.titre.trim()) e2.titre = "Required";
-    if (!form.message.trim()) e2.message = "Required";
-    if (!form.sendToAll && !form.userId) e2.userId = "Required";
+    if (!form.titre.trim()) e2.titre = "Requis";
+    if (!form.message.trim()) e2.message = "Requis";
+    if (!form.sendToAll && !form.userId) e2.userId = "Requis";
     setErrs(e2);
     if (Object.keys(e2).length) return;
 
@@ -235,7 +235,7 @@ function SendForm({ onSent }: { onSent: () => void }) {
         },
       });
       toast.success(
-        form.sendToAll ? "Global notification sent" : "Notification sent to user",
+        form.sendToAll ? "Notification globale envoyée" : "Notification envoyée à l'utilisateur",
       );
       setForm({
         titre: "",
@@ -247,7 +247,7 @@ function SendForm({ onSent }: { onSent: () => void }) {
       });
       onSent();
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Send failed");
+      toast.error(err instanceof ApiError ? err.message : "Échec de l'envoi");
     } finally {
       setSending(false);
     }
@@ -257,11 +257,11 @@ function SendForm({ onSent }: { onSent: () => void }) {
     <div className="rounded-xl border bg-card p-5">
       <div className="flex items-center gap-2 mb-4">
         <Send className="h-4 w-4 text-gold" />
-        <h3 className="font-semibold">Send notification</h3>
+        <h3 className="font-semibold">Envoyer une notification</h3>
       </div>
       <form onSubmit={submit} className="grid gap-3 md:grid-cols-2">
         <div className="md:col-span-2">
-          <Label>Title</Label>
+          <Label>Titre</Label>
           <Input
             value={form.titre}
             onChange={(e) => setForm({ ...form, titre: e.target.value })}
@@ -280,7 +280,7 @@ function SendForm({ onSent }: { onSent: () => void }) {
           {errs.message && <p className="text-xs text-destructive mt-1">{errs.message}</p>}
         </div>
         <div>
-          <Label>Category</Label>
+          <Label>Catégorie</Label>
           <Select
             value={form.categorie}
             onValueChange={(v) => setForm({ ...form, categorie: v })}
@@ -290,14 +290,14 @@ function SendForm({ onSent }: { onSent: () => void }) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="info">Info</SelectItem>
-              <SelectItem value="alert">Alert</SelectItem>
+              <SelectItem value="alert">Alerte</SelectItem>
               <SelectItem value="social">Social</SelectItem>
               <SelectItem value="rappel">Rappel</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div>
-          <Label>Type (optional)</Label>
+          <Label>Type (optionnel)</Label>
           <Input
             value={form.type}
             onChange={(e) => setForm({ ...form, type: e.target.value })}
@@ -309,11 +309,11 @@ function SendForm({ onSent }: { onSent: () => void }) {
             checked={form.sendToAll}
             onCheckedChange={(v) => setForm({ ...form, sendToAll: v })}
           />
-          <Label className="!mt-0">Send to all users (global)</Label>
+          <Label className="!mt-0">Envoyer à tous les utilisateurs (globale)</Label>
         </div>
         {!form.sendToAll && (
           <div className="md:col-span-2">
-            <Label>User ID</Label>
+            <Label>ID Utilisateur</Label>
             <Input
               type="number"
               value={form.userId}
@@ -328,7 +328,7 @@ function SendForm({ onSent }: { onSent: () => void }) {
         <div className="md:col-span-2 flex justify-end">
           <Button type="submit" disabled={sending} className="bg-primary hover:bg-primary/90">
             {sending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            Send
+            Envoyer
           </Button>
         </div>
       </form>

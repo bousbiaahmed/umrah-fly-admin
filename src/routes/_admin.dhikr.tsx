@@ -65,7 +65,7 @@ function DhikrPage() {
         setPlannings(list);
         if (list.length) setSelected(list[0]);
       } catch (err) {
-        toast.error(err instanceof ApiError ? err.message : "Failed to load plannings");
+        toast.error(err instanceof ApiError ? err.message : "Échec du chargement des plannings");
       } finally {
         setLoadingP(false);
       }
@@ -78,7 +78,7 @@ function DhikrPage() {
       const data = await api<Dhikr[]>(`/dhikr/${id}`);
       setDhikrs(Array.isArray(data) ? data : []);
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Failed to load dhikrs");
+      toast.error(err instanceof ApiError ? err.message : "Échec du chargement des dhikr");
       setDhikrs([]);
     } finally {
       setLoadingD(false);
@@ -94,7 +94,7 @@ function DhikrPage() {
       const detail = await api<Dhikr>(`/dhikr/detail/${d.id_dhikr}`);
       setViewing(detail);
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Failed to load detail");
+      toast.error(err instanceof ApiError ? err.message : "Échec du chargement du détail");
     }
   };
 
@@ -103,21 +103,21 @@ function DhikrPage() {
     setBusy(true);
     try {
       await api(`/dhikr/${deleting.id_dhikr}`, { method: "DELETE" });
-      toast.success("Dhikr deleted");
+      toast.success("Dhikr supprimé");
       setDhikrs((prev) => prev.filter((d) => d.id_dhikr !== deleting.id_dhikr));
       setDeleting(null);
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Delete failed");
+      toast.error(err instanceof ApiError ? err.message : "Échec de la suppression");
     } finally {
       setBusy(false);
     }
   };
 
   const columns: Column<Dhikr>[] = [
-    { key: "ordre", header: "Order", sortable: true, accessor: (d) => d.ordre },
-    { key: "nom", header: "Name", sortable: true, accessor: (d) => d.nom },
+    { key: "ordre", header: "Ordre", sortable: true, accessor: (d) => d.ordre },
+    { key: "nom", header: "Nom", sortable: true, accessor: (d) => d.nom },
     { key: "desc", header: "Description", render: (d) => trunc(d.description, 60) },
-    { key: "rep", header: "Repetitions", sortable: true, accessor: (d) => d.repetitions },
+    { key: "rep", header: "Répétitions", sortable: true, accessor: (d) => d.repetitions },
     {
       key: "actions",
       header: "Actions",
@@ -149,7 +149,7 @@ function DhikrPage() {
         {loadingP ? (
           <Spinner />
         ) : plannings.length === 0 ? (
-          <EmptyState message="No plannings." />
+          <EmptyState message="Aucun planning." />
         ) : (
           <ul className="space-y-1 mt-2">
             {plannings.map((p) => (
@@ -194,20 +194,20 @@ function DhikrPage() {
             <h3 className="text-base font-semibold">
               {selected
                 ? `Dhikr — ${selected.type_evenement || `#${selected.id_planning}`}`
-                : "Select a planning"}
+                : "Sélectionnez un planning"}
             </h3>
-            <p className="text-sm text-muted-foreground">{dhikrs.length} dhikrs</p>
+            <p className="text-sm text-muted-foreground">{dhikrs.length} dhikr</p>
           </div>
           {selected && (
             <Button onClick={() => setAdding(true)} className="bg-primary hover:bg-primary/90">
               <Plus className="h-4 w-4 mr-2" />
-              Add Dhikr
+              Ajouter un Dhikr
             </Button>
           )}
         </div>
 
         {!selected ? (
-          <EmptyState message="Pick a planning to see its dhikrs." />
+          <EmptyState message="Choisissez un planning pour voir ses dhikr." />
         ) : loadingD ? (
           <Spinner />
         ) : (
@@ -215,7 +215,7 @@ function DhikrPage() {
             rows={dhikrs}
             columns={columns}
             rowKey={(d) => d.id_dhikr}
-            emptyMessage="No dhikrs for this planning."
+            emptyMessage="Aucun dhikr pour ce planning."
           />
         )}
       </div>
@@ -228,8 +228,8 @@ function DhikrPage() {
           </SheetHeader>
           {viewing && (
             <div className="mt-6 px-4 space-y-3 text-sm">
-              <Field label="Order" value={String(viewing.ordre)} />
-              <Field label="Repetitions" value={String(viewing.repetitions)} />
+              <Field label="Ordre" value={String(viewing.ordre)} />
+              <Field label="Répétitions" value={String(viewing.repetitions)} />
               <Field label="Description" value={viewing.description ?? "—"} />
             </div>
           )}
@@ -262,8 +262,8 @@ function DhikrPage() {
       <ConfirmDialog
         open={!!deleting}
         onOpenChange={(o) => !o && setDeleting(null)}
-        title="Delete dhikr?"
-        description={`This will permanently delete "${deleting?.nom}".`}
+        title="Supprimer le dhikr ?"
+        description={`Cela supprimera définitivement « ${deleting?.nom} ».`}
         onConfirm={handleDelete}
         loading={busy}
       />
@@ -304,7 +304,7 @@ function DhikrFormDialog({
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const e2: Record<string, string> = {};
-    if (!form.nom) e2.nom = "Required";
+    if (!form.nom) e2.nom = "Requis";
     setErrs(e2);
     if (Object.keys(e2).length) return;
 
@@ -312,17 +312,17 @@ function DhikrFormDialog({
     try {
       if (isEdit && existing) {
         await api(`/dhikr/${existing.id_dhikr}`, { method: "PUT", body: form });
-        toast.success("Dhikr updated");
+        toast.success("Dhikr mis à jour");
       } else {
         await api("/dhikr/", {
           method: "POST",
           body: { ...form, id_planning: planningId },
         });
-        toast.success("Dhikr created");
+        toast.success("Dhikr créé");
       }
       onSaved();
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Save failed");
+      toast.error(err instanceof ApiError ? err.message : "Échec de l'enregistrement");
     } finally {
       setSaving(false);
     }
@@ -332,11 +332,11 @@ function DhikrFormDialog({
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Edit dhikr" : "Add dhikr"}</DialogTitle>
+          <DialogTitle>{isEdit ? "Modifier le dhikr" : "Ajouter un dhikr"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={submit} className="space-y-3">
           <div>
-            <Label>Name</Label>
+            <Label>Nom</Label>
             <Input
               value={form.nom}
               onChange={(e) => setForm({ ...form, nom: e.target.value })}
@@ -346,7 +346,7 @@ function DhikrFormDialog({
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Order</Label>
+              <Label>Ordre</Label>
               <Input
                 type="number"
                 value={form.ordre}
@@ -355,7 +355,7 @@ function DhikrFormDialog({
               />
             </div>
             <div>
-              <Label>Repetitions</Label>
+              <Label>Répétitions</Label>
               <Input
                 type="number"
                 value={form.repetitions}
@@ -374,15 +374,15 @@ function DhikrFormDialog({
             />
           </div>
           {!isEdit && (
-            <div className="text-xs text-muted-foreground">Planning ID: {planningId}</div>
+            <div className="text-xs text-muted-foreground">ID Planning : {planningId}</div>
           )}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              Annuler
             </Button>
             <Button type="submit" disabled={saving} className="bg-primary hover:bg-primary/90">
               {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              {isEdit ? "Save" : "Create"}
+              {isEdit ? "Enregistrer" : "Créer"}
             </Button>
           </DialogFooter>
         </form>

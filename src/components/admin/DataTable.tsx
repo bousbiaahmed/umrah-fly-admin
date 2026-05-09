@@ -26,7 +26,7 @@ type Props<T> = {
   rowKey: (row: T) => string | number;
 };
 
-export function DataTable<T>({ rows, columns, emptyMessage = "No data yet.", rowKey }: Props<T>) {
+export function DataTable<T>({ rows, columns, emptyMessage = "Aucune donnée.", rowKey }: Props<T>) {
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [dir, setDir] = useState<"asc" | "desc">("asc");
 

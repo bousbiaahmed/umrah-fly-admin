@@ -31,7 +31,7 @@ function Dashboard() {
           plannings: Array.isArray(p) ? p.length : 0,
         });
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Failed to load stats");
+        toast.error(err instanceof Error ? err.message : "Échec du chargement des statistiques");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -41,13 +41,13 @@ function Dashboard() {
     };
   }, []);
 
-  if (loading) return <Spinner label="Loading dashboard…" />;
+  if (loading) return <Spinner label="Chargement du tableau de bord…" />;
 
   const cards = [
-    { label: "Total Users", value: stats?.users ?? 0, Icon: Users, color: "bg-primary" },
-    { label: "Total Duas", value: stats?.duas ?? 0, Icon: BookOpenText, color: "bg-gold" },
+    { label: "Utilisateurs", value: stats?.users ?? 0, Icon: Users, color: "bg-primary" },
+    { label: "Douaa", value: stats?.duas ?? 0, Icon: BookOpenText, color: "bg-gold" },
     {
-      label: "Total Plannings",
+      label: "Plannings",
       value: stats?.plannings ?? 0,
       Icon: CalendarDays,
       color: "bg-primary",
@@ -57,8 +57,8 @@ function Dashboard() {
   return (
     <div>
       <div className="mb-6">
-        <h2 className="text-2xl font-semibold text-foreground">Welcome back 👋</h2>
-        <p className="text-sm text-muted-foreground">Here is what's happening today.</p>
+        <h2 className="text-2xl font-semibold text-foreground">Bon retour 👋</h2>
+        <p className="text-sm text-muted-foreground">Voici ce qu'il se passe aujourd'hui.</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
