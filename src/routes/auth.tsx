@@ -1,4 +1,5 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { setToken } from "@/lib/api";
 
 export const Route = createFileRoute("/auth")({
@@ -14,31 +15,34 @@ export const Route = createFileRoute("/auth")({
     redirect:
       typeof search.redirect === "string" ? search.redirect : undefined,
   }),
-  beforeLoad: ({ search }) => {
-    const { token, redirect: redirectTo } = search as {
-      token?: string;
-      redirect?: string;
-    };
-
-    if (token) {
-      setToken(token);
-      if (typeof window !== "undefined") {
-        const url = new URL(window.location.href);
-        url.searchParams.delete("token");
-        url.searchParams.delete("accessToken");
-        url.searchParams.delete("access_token");
-        url.searchParams.delete("redirect");
-        window.history.replaceState({}, "", url.pathname + url.search);
-      }
-      throw redirect({ to: (redirectTo as "/dashboard") || "/dashboard" });
-    }
-
-    throw redirect({ to: "/login" });
-  },
   component: AuthCallback,
 });
 
 function AuthCallback() {
+  const navigate = useNavigate();
+  const search = Route.useSearch();
+
+  useEffect(() => {
+    const token = search.token;
+    const redirectTo = search.redirect || "/dashboard";
+
+    if (!token) {
+      navigate({ to: "/login", replace: true });
+      return;
+    }
+
+    setToken(token);
+
+    const url = new URL(window.location.href);
+    url.searchParams.delete("token");
+    url.searchParams.delete("accessToken");
+    url.searchParams.delete("access_token");
+    url.searchParams.delete("redirect");
+    window.history.replaceState({}, document.title, url.pathname + url.search);
+
+    navigate({ to: redirectTo as "/dashboard", replace: true });
+  }, [navigate, search.redirect, search.token]);
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
       <div className="text-center">
